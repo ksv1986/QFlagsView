@@ -1,0 +1,56 @@
+#include "models.h"
+
+const bitNames_t x86_eflags = {
+    [ 0] = "CF",
+    [ 2] = "PF",
+    [ 4] = "AF",
+    [ 6] = "ZF",
+    [ 7] = "SF",
+    [ 8] = "TF",
+    [ 9] = "IF",
+    [10] = "DF",
+    [11] = "OF",
+    [12] = "IOPL",
+    [13] = "IOPL",
+    [14] = "NT",
+    [15] = "8086",
+    [16] = "RF",
+    [17] = "VM",
+    [18] = "AC",
+    [19] = "VIF",
+    [20] = "VIP",
+    [21] = "ID",
+};
+
+const bitNames_t x86_cr0 = {
+    [ 0] = "PE",
+    [ 1] = "MP",
+    [ 2] = "EM",
+    [ 3] = "TS",
+    [ 4] = "ET",
+    [ 5] = "NE",
+    [16] = "WP",
+    [18] = "AM",
+    [29] = "NW",
+    [30] = "CD",
+    [31] = "PG",
+};
+
+const bitNames_t x86_cr4 = {
+    [ 0] = "VME",
+    [ 1] = "PVI",
+    [ 2] = "TSD",
+    [ 3] = "DE",
+    [ 5] = "PAE",
+    [ 6] = "MCE",
+    [ 7] = "PGE",
+    [ 8] = "PCE",
+    [ 9] = "OSFXSR",
+    [10] = "OSXMMEXCPT",
+    [13] = "VMXE",
+    [14] = "SMXE",
+    [17] = "PCIDE",
+    [18] = "OSXSAVE",
+    [20] = "SMEP",
+    [21] = "SMAP",
+};
