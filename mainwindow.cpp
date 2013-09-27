@@ -237,7 +237,7 @@ MainWindow::hexToString(uint64_t v) const
 void
 MainWindow::updateBitNames()
 {
-    for (uint i = 0; i < valueWidth; i++) {
+    for (uint i = 0; i < kBitCount; i++) {
         QPushButton *b = qobject_cast<QPushButton*>(ui->gridLayout->itemAt(i)->widget());
         b->setText(getName(i));
     }
