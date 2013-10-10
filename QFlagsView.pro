@@ -15,11 +15,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    core/flagsmodel.cpp \
-    core/models.c
+    qflagsmodel.cpp \
+    qnamedflags.cpp
 
 HEADERS  += mainwindow.h \
-    core/flagsmodel.h \
-    core/models.h
+    qflagsmodel.h \
+    qnamedflags.h
 
 FORMS    += mainwindow.ui

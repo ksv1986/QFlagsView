@@ -5,14 +5,13 @@
 #include <QList>
 #include <QByteArray>
 #include <QFont>
-#include "core/flagsmodel.h"
-
-using namespace flags;
+#include "qflagsmodel.h"
 
 namespace Ui {
 class MainWindow;
 }
 
+class QFile;
 class QHBoxLayout;
 class QSignalMapper;
 
@@ -25,10 +24,11 @@ public:
     ~MainWindow();
 
 private:
+    static QList<QNamedFlags> models;
+
     Ui::MainWindow *ui;
     QFont digitFont;
-    FlagsModel model;
-    QList<QByteArray> bitNames;
+    QFlagsModel model;
     QSignalMapper * signalMapper;
     uint valueWidth;
     static const QChar kFillChar;
@@ -37,7 +37,6 @@ private:
     void modelInit(uint64_t initialValue=0);
     void uiInit();
 
-    void setNames(const bitNames_t names);
     void setValueWidth(uint width);
 
     QWidget * createBit (uint i, int value=0);
@@ -49,14 +48,18 @@ private:
     void updateValueEdit();
     void updateBits();
     void updateBitNames();
+    void updateModels();
     void updateSummary();
     QHBoxLayout * getBitLayout(uint i);
     QWidget * getBitWidget(uint i);
+
+    bool loadModel(QFile &file);
 private slots:
     void bitClicked(int);
     void valueChanged(QString);
     void namesChanged(int);
     void valueWidthChanged(int);
+    void pasteValue();
 protected:
     void keyPressEvent(QKeyEvent *event);
 };

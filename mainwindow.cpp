@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "core/models.h"
 #include <QDebug>
 #include <QObject>
 #include <QString>
@@ -8,19 +7,13 @@
 #include <QSignalMapper>
 #include <QKeyEvent>
 #include <QClipboard>
-
-struct named_model {
-    const char *name;
-    const bitNames_t *model;
-};
-const struct named_model models[] = {
-    { "eflags", &x86_eflags, },
-    { "cr0",    &x86_cr0, },
-    { "cr4",    &x86_cr4, },
-};
+#include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 const QChar MainWindow::kFillChar('0');
 const uint  MainWindow::kBitCount = 32;
+QList<QNamedFlags> MainWindow::models;
 
 static inline int
 hexLength(uint bits)
@@ -90,22 +83,13 @@ MainWindow::uiInit()
     }
     ui->bitComboBox->setCurrentIndex(ui->bitComboBox->count()-1);
 
-    for (size_t i = 0; i < sizeof(models)/sizeof(models[0]); i++) {
-        ui->comboBox->addItem(QString(models[i].name));
-    }
+    updateModels();
 
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(bitClicked(int)));
     connect(ui->valueEdit, SIGNAL(textEdited(QString)), this, SLOT(valueChanged(QString)));
     connect(ui->bitComboBox, SIGNAL(activated(int)), this, SLOT(valueWidthChanged(int)));
     connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(namesChanged(int)));
-}
-
-void
-MainWindow::setNames(const bitNames_t names)
-{
-    model.setNames(names);
-    updateBitNames();
-    updateSummary();
+    connect(ui->pasteButton, SIGNAL(clicked()), this, SLOT(pasteValue()));
 }
 
 void
@@ -217,9 +201,7 @@ MainWindow::createName(uint i, int value)
 QString
 MainWindow::getName(uint i) const
 {
-    return model.bitName(i) ?
-                QString(model.bitName(i)) :
-                QString::number(i);
+    return model.hasName(i) ? model.bitName(i) : QString::number(i);
 }
 
 QString
@@ -243,6 +225,59 @@ MainWindow::updateBitNames()
     }
 }
 
+bool
+MainWindow::loadModel(QFile &inputFile)
+{
+    QJsonDocument json = QJsonDocument::fromJson(inputFile.readAll());
+    if (json.isNull())
+        return false;
+    QNamedFlags flags;
+    if (!flags.load(json.object()))
+        return false;
+    models.append(flags);
+    return true;
+}
+
+void
+MainWindow::updateModels()
+{
+    ui->comboBox->clear();
+    models.clear();
+
+    QDir modelsDir("models");
+    QStringList modelFiles = modelsDir.entryList(QDir::Files,QDir::SortFlag::Name);
+    for (int i = 0; i < modelFiles.count(); i++) {
+        QFile inputFile(modelsDir.filePath(modelFiles[i]));
+        if (!inputFile.open(QIODevice::ReadOnly))
+            continue;
+        loadModel(inputFile);
+        inputFile.close();
+    }
+    for (int i = 0; i < models.count(); i++)
+        ui->comboBox->addItem(models[i].name());
+}
+
+static const uint64_t
+mask_table[QNamedFlags::BitCount] =
+{
+    0x0000000000000001, 0x0000000000000003, 0x0000000000000007, 0x000000000000000f,
+    0x000000000000001f, 0x000000000000003f, 0x000000000000007f, 0x00000000000000ff,
+    0x00000000000001ff, 0x00000000000003ff, 0x00000000000007ff, 0x0000000000000fff,
+    0x0000000000001fff, 0x0000000000003fff, 0x0000000000007fff, 0x000000000000ffff,
+    0x000000000001ffff, 0x000000000003ffff, 0x000000000007ffff, 0x00000000000fffff,
+    0x00000000001fffff, 0x00000000003fffff, 0x00000000007fffff, 0x0000000000ffffff,
+    0x0000000001ffffff, 0x0000000003ffffff, 0x0000000007ffffff, 0x000000000fffffff,
+    0x000000001fffffff, 0x000000003fffffff, 0x000000007fffffff, 0x00000000ffffffff,
+    0x00000001ffffffff, 0x00000003ffffffff, 0x00000007ffffffff, 0x0000000fffffffff,
+    0x0000001fffffffff, 0x0000003fffffffff, 0x0000007fffffffff, 0x000000ffffffffff,
+    0x000001ffffffffff, 0x000003ffffffffff, 0x000007ffffffffff, 0x00000fffffffffff,
+    0x00001fffffffffff, 0x00003fffffffffff, 0x00007fffffffffff, 0x0000ffffffffffff,
+    0x0001ffffffffffff, 0x0003ffffffffffff, 0x0007ffffffffffff, 0x000fffffffffffff,
+    0x001fffffffffffff, 0x003fffffffffffff, 0x007fffffffffffff, 0x00ffffffffffffff,
+    0x01ffffffffffffff, 0x03ffffffffffffff, 0x07ffffffffffffff, 0x0fffffffffffffff,
+    0x1fffffffffffffff, 0x3fffffffffffffff, 0x7fffffffffffffff, 0xffffffffffffffff,
+};
+
 void
 MainWindow::updateSummary()
 {
@@ -250,10 +285,25 @@ MainWindow::updateSummary()
     uint64_t rest = 0, bit = 1ULL;
     for (uint i = 0; i < valueWidth; i++) {
         if (model[i]) {
-            if (model.bitName(i)) {
-                summary.append('|').append(model.bitName(i));
-            } else
+            int length = model.fieldLength(i);
+            if (length == 0)
                 rest |= bit;
+            else if (length == 1)
+                summary.append('|').append(model.bitName(i));
+            else {
+                int index  = i;
+                if (length < 0) {
+                    index  = i + length;
+                    length = model.fieldLength(index);
+                }
+                if (length > 1 && length <= QNamedFlags::BitCount) {
+                    uint64_t field = (model.value() >> index) & mask_table[length-1];
+                    summary.append('|').append(QString("%1<<%2").arg(field).arg(index));
+                    bit <<= length - (i-index);
+                    i = index + length - 1;
+                    continue;
+                }
+            }
         }
         bit <<= 1;
     }
@@ -308,8 +358,10 @@ MainWindow::valueChanged(QString)
 void
 MainWindow::namesChanged(int index)
 {
-    if (index >= 0 && index < (int)(sizeof(models)/sizeof(models[0])))
-        setNames(*models[index].model);
+    if (index >= models.count())
+        return;
+    model.setFlags(models.at(index));
+    updateBitNames();
     updateSummary();
 }
 
@@ -322,22 +374,28 @@ MainWindow::valueWidthChanged(int index)
 }
 
 void
+MainWindow::pasteValue()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    QString originalText = clipboard->text();
+    bool ok = false;
+    uint64_t v = originalText.toULongLong(&ok, 16);
+    if (!ok)
+        v = originalText.toULongLong(&ok, 10);
+
+    if (ok) {
+        model.setValue(v);
+        updateValueEdit();
+        updateBits();
+    }
+}
+
+void
 MainWindow::keyPressEvent(QKeyEvent *event)
 {
    if (event->matches(QKeySequence::Paste)) {
        event->ignore();
-       QClipboard *clipboard = QApplication::clipboard();
-       QString originalText = clipboard->text();
-       bool ok = false;
-       uint64_t v = originalText.toULongLong(&ok, 16);
-       if (!ok)
-           v = originalText.toULongLong(&ok, 10);
-
-       if (ok) {
-           model.setValue(v);
-           updateValueEdit();
-           updateBits();
-       }
+       pasteValue();
    }
    else return QMainWindow::keyPressEvent(event);
 }

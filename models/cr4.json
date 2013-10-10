@@ -1,0 +1,22 @@
+{
+	"name": "CR4",
+	"bits": [
+		{ "bit":  0, "name": "VME" },
+		{ "bit":  1, "name": "PVI" },
+		{ "bit":  2, "name": "TSD" },
+		{ "bit":  3, "name": "DE" },
+		{ "bit":  5, "name": "PAE" },
+		{ "bit":  6, "name": "MCE" },
+		{ "bit":  7, "name": "PGE" },
+		{ "bit":  8, "name": "PCE" },
+		{ "bit":  9, "name": "OSFXSR" },
+		{ "bit": 10, "name": "OSXMMEXCPT" },
+		{ "bit": 13, "name": "VMXE" },
+		{ "bit": 14, "name": "SMXE" },
+		{ "bit": 17, "name": "PCIDE" },
+		{ "bit": 18, "name": "OSXSAVE" },
+		{ "bit": 20, "name": "SMEP" },
+		{ "bit": 21, "name": "SMAP" },
+		{}
+	]
+}

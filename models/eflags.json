@@ -1,0 +1,22 @@
+{
+	"name": "eflags",
+	"bits": [
+		{ "bit":  0, "name": "CF" },
+		{ "bit":  2, "name": "PF" },
+		{ "bit":  4, "name": "AF" },
+		{ "bit":  6, "name": "ZF" },
+		{ "bit":  7, "name": "SF" },
+		{ "bit":  8, "name": "TF" },
+		{ "bit":  9, "name": "IF" },
+		{ "bit": 10, "name": "DF" },
+		{ "bit": 11, "name": "OF" },
+		{ "bit": 12, "name": "IOPL", "length" : 2},
+		{ "bit": 14, "name": "NT" },
+		{ "bit": 15, "name": "8086" },
+		{ "bit": 16, "name": "RF" },
+		{ "bit": 17, "name": "VM" },
+		{ "bit": 18, "name": "AC" },
+		{ "bit": 19, "name": "VIF" },
+		{ "bit": 20, "name": "VIP" }
+	]
+}

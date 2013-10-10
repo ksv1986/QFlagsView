@@ -1,0 +1,33 @@
+{
+	"name": "CR0",
+	"bits": [
+		{ "bit":  0, "name": "PE" },
+		{ "bit":  1, "name": "MP" },
+		{ "bit":  2, "name": "EM" },
+		{ "bit":  3, "name": "TS" },
+		{ "bit":  4, "name": "ET" },
+		{ "bit":  5, "name": "NE" },
+		{ "bit": 16, "name": "WP" },
+		{ "bit": 18, "name": "AM" },
+		{ "bit": 29, "name": "NW" },
+		{ "bit": 30, "name": "CD" },
+		{ "bit": 31, "name": "PG" },
+		{ "bit": 32, "name": "VME" },
+		{ "bit": 33, "name": "PVI" },
+		{ "bit": 34, "name": "TSD" },
+		{ "bit": 35, "name": "DE" },
+		{ "bit": 37, "name": "PAE" },
+		{ "bit": 38, "name": "MCE" },
+		{ "bit": 39, "name": "PGE" },
+		{ "bit": 40, "name": "PCE" },
+		{ "bit": 41, "name": "OSFXSR" },
+		{ "bit": 42, "name": "OSXMMEXCPT" },
+		{ "bit": 45, "name": "VMXE" },
+		{ "bit": 46, "name": "SMXE" },
+		{ "bit": 49, "name": "PCIDE" },
+		{ "bit": 50, "name": "OSXSAVE" },
+		{ "bit": 52, "name": "SMEP" },
+		{ "bit": 53, "name": "SMAP" },
+		{}
+	]
+}

@@ -1,0 +1,8 @@
+{ "name": "Page fault", "bits": [
+    {"bit" :  0, "name": "Present"},
+	{"bit" :  1, "name": "Write"},
+	{"bit" :  2, "name": "User"},
+	{"bit" :  3, "name": "Reserved"},
+	{"bit" :  4, "name": "Instruction fetch"}
+	]
+}
