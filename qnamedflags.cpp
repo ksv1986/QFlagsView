@@ -106,9 +106,8 @@ QNamedFlags::load(const QJsonObject &root)
             continue;
         _names[bit] = name;
         _bits [bit] = length;
-        length = 1 - length;
-        while (length)
-            _bits[++bit] = length++;
+        for (int b = 1; b < length; b++)
+            _bits[bit+b] = -b;
         loaded = true;
     }
     return loaded;
