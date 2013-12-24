@@ -1,4 +1,4 @@
-#include "QFlagsModel.h"
+#include "qflagsmodel.h"
 #include "qnamedflags.h"
 
 QFlagsModel::QFlagsModel(QObject *parent) :
